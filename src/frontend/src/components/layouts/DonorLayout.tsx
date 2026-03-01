@@ -19,6 +19,7 @@ import {
   Menu,
   Search,
   User,
+  Users,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
@@ -52,8 +53,19 @@ export default function DonorLayout({
     { icon: Home, label: "Dashboard", href: "/donor", id: "home" },
     { icon: User, label: "My Profile", href: "#", id: "profile" },
     { icon: History, label: "Donation History", href: "#", id: "history" },
+    {
+      icon: Users,
+      label: "Find Donors",
+      href: "/donor/find-donors",
+      id: "findDonors",
+    },
     { icon: Search, label: "Search Blood", href: "#", id: "search" },
-    { icon: Calendar, label: "Appointments", href: "#", id: "appointments" },
+    {
+      icon: Calendar,
+      label: "Book Appointment",
+      href: "/donor/appointments",
+      id: "appointments",
+    },
     {
       icon: Bell,
       label: "Notifications",
@@ -69,7 +81,7 @@ export default function DonorLayout({
         const isActive = currentPage === item.id;
         const Icon = item.icon;
 
-        if (item.href === "/donor") {
+        if (item.href !== "#") {
           return (
             <Link
               key={item.id}

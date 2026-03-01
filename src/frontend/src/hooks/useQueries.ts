@@ -20,7 +20,12 @@ export function useGetCallerUserProfile() {
     queryKey: ["currentUserProfile"],
     queryFn: async () => {
       if (!actor) throw new Error("Actor not available");
-      return actor.getCallerUserProfile();
+      try {
+        return await actor.getCallerUserProfile();
+      } catch {
+        // New users may not have a profile yet — treat errors as no profile
+        return null;
+      }
     },
     enabled: !!actor && !actorFetching,
     retry: false,
@@ -28,8 +33,9 @@ export function useGetCallerUserProfile() {
 
   return {
     ...query,
+    data: query.isError ? null : (query.data ?? null),
     isLoading: actorFetching || query.isLoading,
-    isFetched: !!actor && query.isFetched,
+    isFetched: !!actor && (query.isFetched || query.isError),
   };
 }
 

@@ -194,13 +194,11 @@ export default function DonorDashboard() {
                     Your scheduled donation appointments
                   </CardDescription>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => toast.info("Coming soon!")}
-                >
-                  View All
-                </Button>
+                <Link to="/donor/appointments">
+                  <Button variant="ghost" size="sm">
+                    View All
+                  </Button>
+                </Link>
               </div>
             </CardHeader>
             <CardContent>
@@ -216,9 +214,9 @@ export default function DonorDashboard() {
                   <p className="text-sm text-muted-foreground mb-3">
                     No upcoming appointments
                   </p>
-                  <Button size="sm" onClick={() => toast.info("Coming soon!")}>
-                    Book Appointment
-                  </Button>
+                  <Link to="/donor/appointments">
+                    <Button size="sm">Book Appointment</Button>
+                  </Link>
                 </div>
               ) : (
                 <div className="space-y-3">

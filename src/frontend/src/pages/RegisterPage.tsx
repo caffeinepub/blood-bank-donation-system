@@ -95,9 +95,9 @@ export default function RegisterPage() {
   const isLoggingIn = loginStatus === "logging-in";
   const isSubmitting = registerDonor.isPending || saveProfile.isPending;
 
-  // Redirect if already registered
+  // Redirect if already registered — only when profile has a name (non-empty profile)
   useEffect(() => {
-    if (isAuthenticated && isFetched && userProfile) {
+    if (isAuthenticated && isFetched && userProfile && userProfile.name) {
       toast.info("You are already registered");
       navigate({ to: "/donor" });
     }
@@ -147,7 +147,6 @@ export default function RegisterPage() {
     }
 
     try {
-      // Run both calls: registerDonor and saveCallerUserProfile in sequence
       await registerDonor.mutateAsync({
         name,
         age: BigInt(ageNum),
@@ -157,23 +156,41 @@ export default function RegisterPage() {
         healthStatus,
       });
 
-      // Save full profile including contact
-      await saveProfile.mutateAsync({
-        name,
-        age: BigInt(ageNum),
-        contact,
-        bloodGroup: bloodType,
-        location,
-        weight: BigInt(weightNum),
-        healthStatus,
-        role: "donor",
-      });
+      // Try to save full profile including contact — non-fatal if it fails
+      try {
+        await saveProfile.mutateAsync({
+          name,
+          age: BigInt(ageNum),
+          contact,
+          bloodGroup: bloodType,
+          location,
+          weight: BigInt(weightNum),
+          healthStatus,
+          role: "donor",
+        });
+      } catch (profileError) {
+        console.warn(
+          "Profile save failed, but donor was registered:",
+          profileError,
+        );
+      }
 
       toast.success("Registration successful! Welcome to BloodBank.");
       navigate({ to: "/donor" });
     } catch (error) {
       console.error("Error registering donor:", error);
-      toast.error("Registration failed. Please try again.");
+      const message =
+        error instanceof Error ? error.message : "Registration failed.";
+      // If already registered, redirect to donor dashboard instead of showing error
+      if (
+        message.includes("already registered") ||
+        message.includes("Donor already registered")
+      ) {
+        toast.error("You are already registered as a donor.");
+        navigate({ to: "/donor" });
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
     }
   };
 
