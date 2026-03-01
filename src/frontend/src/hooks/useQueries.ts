@@ -1,25 +1,25 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
-import type { 
-  UserProfile, 
-  Donor, 
-  DonationRecord, 
-  Appointment, 
-  EmergencyRequest, 
+import type {
+  Appointment,
+  DonationRecord,
+  Donor,
+  EmergencyRequest,
   Notification,
   Statistics,
-  UserRole
-} from '@/backend';
-import { Principal } from '@icp-sdk/core/principal';
+  UserProfile,
+  UserRole,
+} from "@/backend";
+import type { Principal } from "@icp-sdk/core/principal";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useActor } from "./useActor";
 
 // User Profile Queries
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
 
   const query = useQuery<UserProfile | null>({
-    queryKey: ['currentUserProfile'],
+    queryKey: ["currentUserProfile"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getCallerUserProfile();
     },
     enabled: !!actor && !actorFetching,
@@ -39,11 +39,11 @@ export function useSaveCallerUserProfile() {
 
   return useMutation({
     mutationFn: async (profile: UserProfile) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.saveCallerUserProfile(profile);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+      queryClient.invalidateQueries({ queryKey: ["currentUserProfile"] });
     },
   });
 }
@@ -52,9 +52,9 @@ export function useGetCallerUserRole() {
   const { actor, isFetching } = useActor();
 
   return useQuery<UserRole>({
-    queryKey: ['currentUserRole'],
+    queryKey: ["currentUserRole"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getCallerUserRole();
     },
     enabled: !!actor && !isFetching,
@@ -65,9 +65,9 @@ export function useIsCallerAdmin() {
   const { actor, isFetching } = useActor();
 
   return useQuery<boolean>({
-    queryKey: ['isCallerAdmin'],
+    queryKey: ["isCallerAdmin"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.isCallerAdmin();
     },
     enabled: !!actor && !isFetching,
@@ -88,19 +88,19 @@ export function useRegisterDonor() {
       weight: bigint;
       healthStatus: string;
     }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.registerDonor(
         params.name,
         params.age,
         params.bloodType,
         params.location,
         params.weight,
-        params.healthStatus
+        params.healthStatus,
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-      queryClient.invalidateQueries({ queryKey: ['donor'] });
+      queryClient.invalidateQueries({ queryKey: ["currentUserProfile"] });
+      queryClient.invalidateQueries({ queryKey: ["donor"] });
     },
   });
 }
@@ -110,7 +110,7 @@ export function useCheckDonorEligibility() {
 
   return useMutation({
     mutationFn: async (principal: Principal) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.checkDonorEligibility(principal);
     },
   });
@@ -120,7 +120,7 @@ export function useGetDonor(principal: Principal | null) {
   const { actor, isFetching } = useActor();
 
   return useQuery<Donor | null>({
-    queryKey: ['donor', principal?.toString()],
+    queryKey: ["donor", principal?.toString()],
     queryFn: async () => {
       if (!actor || !principal) return null;
       return actor.getDonor(principal);
@@ -133,9 +133,9 @@ export function useGetTotalDonors() {
   const { actor, isFetching } = useActor();
 
   return useQuery<bigint>({
-    queryKey: ['totalDonors'],
+    queryKey: ["totalDonors"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getTotalDonors();
     },
     enabled: !!actor && !isFetching,
@@ -147,9 +147,9 @@ export function useGetAllBloodInventory() {
   const { actor, isFetching } = useActor();
 
   return useQuery<Array<[string, bigint]>>({
-    queryKey: ['bloodInventory'],
+    queryKey: ["bloodInventory"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAllBloodInventory();
     },
     enabled: !!actor && !isFetching,
@@ -160,7 +160,7 @@ export function useGetBloodQuantity(bloodType: string | null) {
   const { actor, isFetching } = useActor();
 
   return useQuery<bigint>({
-    queryKey: ['bloodQuantity', bloodType],
+    queryKey: ["bloodQuantity", bloodType],
     queryFn: async () => {
       if (!actor || !bloodType) return BigInt(0);
       return actor.getBloodQuantity(bloodType);
@@ -175,13 +175,13 @@ export function useUpdateBloodQuantity() {
 
   return useMutation({
     mutationFn: async (params: { bloodType: string; quantity: bigint }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.updateBloodQuantity(params.bloodType, params.quantity);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bloodInventory'] });
-      queryClient.invalidateQueries({ queryKey: ['bloodQuantity'] });
-      queryClient.invalidateQueries({ queryKey: ['statistics'] });
+      queryClient.invalidateQueries({ queryKey: ["bloodInventory"] });
+      queryClient.invalidateQueries({ queryKey: ["bloodQuantity"] });
+      queryClient.invalidateQueries({ queryKey: ["statistics"] });
     },
   });
 }
@@ -192,13 +192,13 @@ export function useIncreaseBloodQuantity() {
 
   return useMutation({
     mutationFn: async (params: { bloodType: string; amount: bigint }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.increaseBloodQuantity(params.bloodType, params.amount);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bloodInventory'] });
-      queryClient.invalidateQueries({ queryKey: ['bloodQuantity'] });
-      queryClient.invalidateQueries({ queryKey: ['statistics'] });
+      queryClient.invalidateQueries({ queryKey: ["bloodInventory"] });
+      queryClient.invalidateQueries({ queryKey: ["bloodQuantity"] });
+      queryClient.invalidateQueries({ queryKey: ["statistics"] });
     },
   });
 }
@@ -209,13 +209,13 @@ export function useDecreaseBloodQuantity() {
 
   return useMutation({
     mutationFn: async (params: { bloodType: string; amount: bigint }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.decreaseBloodQuantity(params.bloodType, params.amount);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bloodInventory'] });
-      queryClient.invalidateQueries({ queryKey: ['bloodQuantity'] });
-      queryClient.invalidateQueries({ queryKey: ['statistics'] });
+      queryClient.invalidateQueries({ queryKey: ["bloodInventory"] });
+      queryClient.invalidateQueries({ queryKey: ["bloodQuantity"] });
+      queryClient.invalidateQueries({ queryKey: ["statistics"] });
     },
   });
 }
@@ -225,13 +225,16 @@ export function useAddBloodType() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: { bloodType: string; initialQuantity: bigint }) => {
-      if (!actor) throw new Error('Actor not available');
+    mutationFn: async (params: {
+      bloodType: string;
+      initialQuantity: bigint;
+    }) => {
+      if (!actor) throw new Error("Actor not available");
       return actor.addBloodType(params.bloodType, params.initialQuantity);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bloodInventory'] });
-      queryClient.invalidateQueries({ queryKey: ['statistics'] });
+      queryClient.invalidateQueries({ queryKey: ["bloodInventory"] });
+      queryClient.invalidateQueries({ queryKey: ["statistics"] });
     },
   });
 }
@@ -241,7 +244,7 @@ export function useGetDonationHistory(donor: Principal | null) {
   const { actor, isFetching } = useActor();
 
   return useQuery<DonationRecord[]>({
-    queryKey: ['donationHistory', donor?.toString()],
+    queryKey: ["donationHistory", donor?.toString()],
     queryFn: async () => {
       if (!actor || !donor) return [];
       return actor.getDonationHistory(donor);
@@ -254,9 +257,9 @@ export function useGetAllDonations() {
   const { actor, isFetching } = useActor();
 
   return useQuery<DonationRecord[]>({
-    queryKey: ['allDonations'],
+    queryKey: ["allDonations"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAllDonations();
     },
     enabled: !!actor && !isFetching,
@@ -268,15 +271,23 @@ export function useRecordDonation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: { bloodType: string; quantity: bigint; location: string }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.recordDonation(params.bloodType, params.quantity, params.location);
+    mutationFn: async (params: {
+      bloodType: string;
+      quantity: bigint;
+      location: string;
+    }) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.recordDonation(
+        params.bloodType,
+        params.quantity,
+        params.location,
+      );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['donationHistory'] });
-      queryClient.invalidateQueries({ queryKey: ['allDonations'] });
-      queryClient.invalidateQueries({ queryKey: ['bloodInventory'] });
-      queryClient.invalidateQueries({ queryKey: ['statistics'] });
+      queryClient.invalidateQueries({ queryKey: ["donationHistory"] });
+      queryClient.invalidateQueries({ queryKey: ["allDonations"] });
+      queryClient.invalidateQueries({ queryKey: ["bloodInventory"] });
+      queryClient.invalidateQueries({ queryKey: ["statistics"] });
     },
   });
 }
@@ -286,9 +297,9 @@ export function useGetMyAppointments() {
   const { actor, isFetching } = useActor();
 
   return useQuery<Appointment[]>({
-    queryKey: ['myAppointments'],
+    queryKey: ["myAppointments"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getMyAppointments();
     },
     enabled: !!actor && !isFetching,
@@ -299,9 +310,9 @@ export function useGetAppointments() {
   const { actor, isFetching } = useActor();
 
   return useQuery<Appointment[]>({
-    queryKey: ['allAppointments'],
+    queryKey: ["allAppointments"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAppointments();
     },
     enabled: !!actor && !isFetching,
@@ -314,12 +325,12 @@ export function useBookAppointment() {
 
   return useMutation({
     mutationFn: async (params: { timeSlot: bigint; location: string }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.bookAppointment(params.timeSlot, params.location);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['myAppointments'] });
-      queryClient.invalidateQueries({ queryKey: ['allAppointments'] });
+      queryClient.invalidateQueries({ queryKey: ["myAppointments"] });
+      queryClient.invalidateQueries({ queryKey: ["allAppointments"] });
     },
   });
 }
@@ -330,12 +341,12 @@ export function useCancelAppointment() {
 
   return useMutation({
     mutationFn: async (appointmentId: bigint) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.cancelAppointment(appointmentId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['myAppointments'] });
-      queryClient.invalidateQueries({ queryKey: ['allAppointments'] });
+      queryClient.invalidateQueries({ queryKey: ["myAppointments"] });
+      queryClient.invalidateQueries({ queryKey: ["allAppointments"] });
     },
   });
 }
@@ -345,9 +356,9 @@ export function useGetEmergencyRequests() {
   const { actor, isFetching } = useActor();
 
   return useQuery<EmergencyRequest[]>({
-    queryKey: ['emergencyRequests'],
+    queryKey: ["emergencyRequests"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getEmergencyRequests();
     },
     enabled: !!actor && !isFetching,
@@ -358,9 +369,9 @@ export function useGetPendingEmergencyRequests() {
   const { actor, isFetching } = useActor();
 
   return useQuery<EmergencyRequest[]>({
-    queryKey: ['pendingEmergencyRequests'],
+    queryKey: ["pendingEmergencyRequests"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getPendingEmergencyRequests();
     },
     enabled: !!actor && !isFetching,
@@ -371,9 +382,9 @@ export function useGetMyEmergencyRequests() {
   const { actor, isFetching } = useActor();
 
   return useQuery<EmergencyRequest[]>({
-    queryKey: ['myEmergencyRequests'],
+    queryKey: ["myEmergencyRequests"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getMyEmergencyRequests();
     },
     enabled: !!actor && !isFetching,
@@ -391,19 +402,19 @@ export function useSubmitEmergencyRequest() {
       location: string;
       urgencyLevel: string;
     }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.submitEmergencyRequest(
         params.patientName,
         params.bloodType,
         params.location,
-        params.urgencyLevel
+        params.urgencyLevel,
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['emergencyRequests'] });
-      queryClient.invalidateQueries({ queryKey: ['pendingEmergencyRequests'] });
-      queryClient.invalidateQueries({ queryKey: ['myEmergencyRequests'] });
-      queryClient.invalidateQueries({ queryKey: ['statistics'] });
+      queryClient.invalidateQueries({ queryKey: ["emergencyRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["pendingEmergencyRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["myEmergencyRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["statistics"] });
     },
   });
 }
@@ -414,13 +425,13 @@ export function useUpdateRequestStatus() {
 
   return useMutation({
     mutationFn: async (params: { requestId: bigint; status: string }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.updateRequestStatus(params.requestId, params.status);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['emergencyRequests'] });
-      queryClient.invalidateQueries({ queryKey: ['pendingEmergencyRequests'] });
-      queryClient.invalidateQueries({ queryKey: ['myEmergencyRequests'] });
+      queryClient.invalidateQueries({ queryKey: ["emergencyRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["pendingEmergencyRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["myEmergencyRequests"] });
     },
   });
 }
@@ -430,9 +441,9 @@ export function useGetMyNotifications() {
   const { actor, isFetching } = useActor();
 
   return useQuery<Notification[]>({
-    queryKey: ['myNotifications'],
+    queryKey: ["myNotifications"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getMyNotifications();
     },
     enabled: !!actor && !isFetching,
@@ -446,11 +457,11 @@ export function useMarkNotificationAsRead() {
 
   return useMutation({
     mutationFn: async (notificationId: bigint) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.markNotificationAsRead(notificationId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['myNotifications'] });
+      queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
     },
   });
 }
@@ -460,7 +471,7 @@ export function useSendNotification() {
 
   return useMutation({
     mutationFn: async (params: { recipient: Principal; message: string }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.sendNotification(params.recipient, params.message);
     },
   });
@@ -471,7 +482,7 @@ export function useSearchBloodByType(bloodType: string | null) {
   const { actor, isFetching } = useActor();
 
   return useQuery<bigint>({
-    queryKey: ['searchBlood', bloodType],
+    queryKey: ["searchBlood", bloodType],
     queryFn: async () => {
       if (!actor || !bloodType) return BigInt(0);
       return actor.searchBloodByType(bloodType);
@@ -484,7 +495,7 @@ export function useSearchDonorsByBloodType(bloodType: string | null) {
   const { actor, isFetching } = useActor();
 
   return useQuery<Donor[]>({
-    queryKey: ['searchDonorsByBloodType', bloodType],
+    queryKey: ["searchDonorsByBloodType", bloodType],
     queryFn: async () => {
       if (!actor || !bloodType) return [];
       return actor.searchDonorsByBloodType(bloodType);
@@ -497,7 +508,7 @@ export function useSearchDonorsByLocation(location: string | null) {
   const { actor, isFetching } = useActor();
 
   return useQuery<Donor[]>({
-    queryKey: ['searchDonorsByLocation', location],
+    queryKey: ["searchDonorsByLocation", location],
     queryFn: async () => {
       if (!actor || !location) return [];
       return actor.searchDonorsByLocation(location);
@@ -511,9 +522,9 @@ export function useGetStatistics() {
   const { actor, isFetching } = useActor();
 
   return useQuery<Statistics>({
-    queryKey: ['statistics'],
+    queryKey: ["statistics"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getStatistics();
     },
     enabled: !!actor && !isFetching,
@@ -524,9 +535,9 @@ export function useGetBloodStockLevels() {
   const { actor, isFetching } = useActor();
 
   return useQuery<Array<[string, bigint]>>({
-    queryKey: ['bloodStockLevels'],
+    queryKey: ["bloodStockLevels"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getBloodStockLevels();
     },
     enabled: !!actor && !isFetching,

@@ -1,41 +1,90 @@
-import AdminLayout from '@/components/layouts/AdminLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Users, 
-  Droplet, 
-  AlertCircle, 
-  Calendar, 
-  TrendingUp,
-  Activity,
-  CheckCircle2
-} from 'lucide-react';
-import { 
-  useGetStatistics,
-  useGetPendingEmergencyRequests,
+import AdminLayout from "@/components/layouts/AdminLayout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  useAddBloodType,
+  useGetAllBloodInventory,
   useGetAppointments,
-  useGetTotalDonors
-} from '@/hooks/useQueries';
-import { getBloodTypeColor, getUrgencyColor, getStockLevelPercentage, formatDateTime } from '@/lib/bloodbank-utils';
-import { Link } from '@tanstack/react-router';
-import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
+  useGetPendingEmergencyRequests,
+  useGetStatistics,
+  useGetTotalDonors,
+} from "@/hooks/useQueries";
+import {
+  formatDateTime,
+  getBloodTypeColor,
+  getStockLevelPercentage,
+  getUrgencyColor,
+} from "@/lib/bloodbank-utils";
+import { Link } from "@tanstack/react-router";
+import {
+  Activity,
+  AlertCircle,
+  Calendar,
+  CheckCircle2,
+  Droplet,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
+
+const ALL_BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 export default function AdminDashboard() {
   const { data: statistics, isLoading: statsLoading } = useGetStatistics();
-  const { data: pendingRequests, isLoading: requestsLoading } = useGetPendingEmergencyRequests();
-  const { data: appointments, isLoading: appointmentsLoading } = useGetAppointments();
+  const { data: pendingRequests, isLoading: requestsLoading } =
+    useGetPendingEmergencyRequests();
+  const { data: appointments, isLoading: appointmentsLoading } =
+    useGetAppointments();
   const { data: totalDonors, isLoading: donorsLoading } = useGetTotalDonors();
+  const { data: bloodInventory, isLoading: inventoryLoading } =
+    useGetAllBloodInventory();
+  const addBloodType = useAddBloodType();
+  const seededRef = useRef(false);
 
-  const todayAppointments = appointments?.filter(a => {
-    const aptDate = new Date(Number(a.timeSlot) / 1000000);
-    const today = new Date();
-    return aptDate.toDateString() === today.toDateString() && a.status === 'Scheduled';
-  }) || [];
+  // Seed all 8 blood types when inventory is empty on first admin load
+  useEffect(() => {
+    if (inventoryLoading || seededRef.current) return;
+    if (!bloodInventory || bloodInventory.length > 0) return;
 
-  const criticalRequests = pendingRequests?.filter(r => r.urgencyLevel === 'Critical') || [];
+    seededRef.current = true;
+    const seedInventory = async () => {
+      try {
+        await Promise.all(
+          ALL_BLOOD_TYPES.map((bloodType) =>
+            addBloodType.mutateAsync({ bloodType, initialQuantity: BigInt(0) }),
+          ),
+        );
+        toast.success("Blood inventory initialised with all 8 blood types.");
+      } catch (err) {
+        console.error("Failed to seed blood inventory:", err);
+        seededRef.current = false; // allow retry on next render
+      }
+    };
+    seedInventory();
+  }, [bloodInventory, inventoryLoading, addBloodType]);
+
+  const todayAppointments =
+    appointments?.filter((a) => {
+      const aptDate = new Date(Number(a.timeSlot) / 1000000);
+      const today = new Date();
+      return (
+        aptDate.toDateString() === today.toDateString() &&
+        a.status === "Scheduled"
+      );
+    }) || [];
+
+  const criticalRequests =
+    pendingRequests?.filter((r) => r.urgencyLevel === "Critical") || [];
 
   return (
     <AdminLayout currentPage="home">
@@ -65,7 +114,9 @@ export default function AdminDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Total Donors</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Total Donors
+                  </p>
                   {donorsLoading ? (
                     <Skeleton className="h-8 w-16" />
                   ) : (
@@ -85,7 +136,9 @@ export default function AdminDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Total Donations</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Total Donations
+                  </p>
                   {statsLoading ? (
                     <Skeleton className="h-8 w-16" />
                   ) : (
@@ -105,7 +158,9 @@ export default function AdminDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Emergency Requests</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Emergency Requests
+                  </p>
                   {requestsLoading ? (
                     <Skeleton className="h-8 w-16" />
                   ) : (
@@ -125,7 +180,9 @@ export default function AdminDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Today's Appointments</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Today's Appointments
+                  </p>
                   {appointmentsLoading ? (
                     <Skeleton className="h-8 w-16" />
                   ) : (
@@ -152,9 +209,15 @@ export default function AdminDashboard() {
                     <AlertCircle className="h-5 w-5 animate-pulse-glow" />
                     Critical Emergency Requests
                   </CardTitle>
-                  <CardDescription>Immediate attention required</CardDescription>
+                  <CardDescription>
+                    Immediate attention required
+                  </CardDescription>
                 </div>
-                <Button variant="destructive" size="sm" onClick={() => toast.info('Coming soon!')}>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => toast.info("Coming soon!")}
+                >
                   View All
                 </Button>
               </div>
@@ -167,12 +230,19 @@ export default function AdminDashboard() {
                     className="flex items-center justify-between p-3 rounded-lg bg-card border border-destructive/20"
                   >
                     <div>
-                      <p className="font-medium text-sm">{request.patientName}</p>
+                      <p className="font-medium text-sm">
+                        {request.patientName}
+                      </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge className={getBloodTypeColor(request.bloodType)} variant="outline">
+                        <Badge
+                          className={getBloodTypeColor(request.bloodType)}
+                          variant="outline"
+                        >
                           {request.bloodType}
                         </Badge>
-                        <span className="text-xs text-muted-foreground">{request.location}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {request.location}
+                        </span>
                       </div>
                     </div>
                     <Badge className={getUrgencyColor(request.urgencyLevel)}>
@@ -198,7 +268,11 @@ export default function AdminDashboard() {
                   </CardTitle>
                   <CardDescription>Current stock levels</CardDescription>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => toast.info('Coming soon!')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toast.info("Coming soon!")}
+                >
                   Manage
                 </Button>
               </div>
@@ -206,7 +280,9 @@ export default function AdminDashboard() {
             <CardContent>
               {statsLoading ? (
                 <div className="space-y-4">
-                  {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-12 w-full" />)}
+                  {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} className="h-12 w-full" />
+                  ))}
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -214,7 +290,10 @@ export default function AdminDashboard() {
                     <div key={bloodType}>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Badge className={getBloodTypeColor(bloodType)} variant="outline">
+                          <Badge
+                            className={getBloodTypeColor(bloodType)}
+                            variant="outline"
+                          >
                             {bloodType}
                           </Badge>
                           <span className="text-sm font-medium">
@@ -222,8 +301,8 @@ export default function AdminDashboard() {
                           </span>
                         </div>
                       </div>
-                      <Progress 
-                        value={getStockLevelPercentage(quantity)} 
+                      <Progress
+                        value={getStockLevelPercentage(quantity)}
                         className="h-2"
                       />
                     </div>
@@ -242,9 +321,15 @@ export default function AdminDashboard() {
                     <Calendar className="h-5 w-5" />
                     Today's Appointments
                   </CardTitle>
-                  <CardDescription>Scheduled donations for today</CardDescription>
+                  <CardDescription>
+                    Scheduled donations for today
+                  </CardDescription>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => toast.info('Coming soon!')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toast.info("Coming soon!")}
+                >
                   View All
                 </Button>
               </div>
@@ -252,12 +337,16 @@ export default function AdminDashboard() {
             <CardContent>
               {appointmentsLoading ? (
                 <div className="space-y-3">
-                  {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 w-full" />)}
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-16 w-full" />
+                  ))}
                 </div>
               ) : todayAppointments.length === 0 ? (
                 <div className="text-center py-8">
                   <Calendar className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">No appointments today</p>
+                  <p className="text-sm text-muted-foreground">
+                    No appointments today
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-3">

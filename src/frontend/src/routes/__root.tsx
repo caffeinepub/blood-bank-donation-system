@@ -1,6 +1,6 @@
-import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
-import type { QueryClient } from '@tanstack/react-query';
-import type { useInternetIdentity } from '@/hooks/useInternetIdentity';
+import type { useInternetIdentity } from "@/hooks/useInternetIdentity";
+import type { QueryClient } from "@tanstack/react-query";
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 
 interface RouterContext {
   queryClient: QueryClient;

@@ -16,8 +16,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Archivo', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['General Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Bricolage Grotesque', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
         border: "oklch(var(--border))",

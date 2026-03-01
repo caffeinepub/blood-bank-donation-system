@@ -1,33 +1,36 @@
-import { useState } from 'react';
+import type { UserProfile } from "@/backend";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
-import { useSaveCallerUserProfile } from '@/hooks/useQueries';
-import { toast } from 'sonner';
-import type { UserProfile } from '@/backend';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useSaveCallerUserProfile } from "@/hooks/useQueries";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface ProfileSetupModalProps {
   open: boolean;
   onComplete: () => void;
 }
 
-export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModalProps) {
-  const [name, setName] = useState('');
+export default function ProfileSetupModal({
+  open,
+  onComplete,
+}: ProfileSetupModalProps) {
+  const [name, setName] = useState("");
   const saveProfile = useSaveCallerUserProfile();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim()) {
-      toast.error('Please enter your name');
+      toast.error("Please enter your name");
       return;
     }
 
@@ -35,24 +38,27 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
       const profile: UserProfile = {
         name: name.trim(),
         age: BigInt(0),
-        bloodGroup: '',
-        location: '',
-        contact: '',
-        role: 'user',
+        bloodGroup: "",
+        location: "",
+        contact: "",
+        role: "user",
       };
 
       await saveProfile.mutateAsync(profile);
-      toast.success('Profile created successfully');
+      toast.success("Profile created successfully");
       onComplete();
     } catch (error) {
-      console.error('Error saving profile:', error);
-      toast.error('Failed to create profile. Please try again.');
+      console.error("Error saving profile:", error);
+      toast.error("Failed to create profile. Please try again.");
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent
+        className="sm:max-w-md"
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Welcome to BloodBank!</DialogTitle>
           <DialogDescription>
@@ -82,7 +88,7 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
                 Saving...
               </>
             ) : (
-              'Continue'
+              "Continue"
             )}
           </Button>
         </form>

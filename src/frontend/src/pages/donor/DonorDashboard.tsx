@@ -1,44 +1,59 @@
-import DonorLayout from '@/components/layouts/DonorLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Heart, 
-  Calendar, 
-  Droplet, 
-  CheckCircle2, 
-  XCircle, 
-  Clock,
-  TrendingUp,
-  Bell
-} from 'lucide-react';
-import { useInternetIdentity } from '@/hooks/useInternetIdentity';
-import { 
-  useGetCallerUserProfile, 
+import DonorLayout from "@/components/layouts/DonorLayout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useInternetIdentity } from "@/hooks/useInternetIdentity";
+import {
+  useGetCallerUserProfile,
+  useGetDonationHistory,
   useGetDonor,
   useGetMyAppointments,
-  useGetDonationHistory,
-  useGetMyNotifications
-} from '@/hooks/useQueries';
-import { formatDateTime, getBloodTypeColor, getStatusColor } from '@/lib/bloodbank-utils';
-import { Link } from '@tanstack/react-router';
-import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
+  useGetMyNotifications,
+} from "@/hooks/useQueries";
+import {
+  formatDateTime,
+  getBloodTypeColor,
+  getStatusColor,
+} from "@/lib/bloodbank-utils";
+import { Link } from "@tanstack/react-router";
+import {
+  Bell,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  Droplet,
+  Heart,
+  TrendingUp,
+  XCircle,
+} from "lucide-react";
+import { toast } from "sonner";
 
 export default function DonorDashboard() {
   const { identity } = useInternetIdentity();
-  const { data: userProfile, isLoading: profileLoading } = useGetCallerUserProfile();
-  const { data: donor, isLoading: donorLoading } = useGetDonor(identity?.getPrincipal() || null);
-  const { data: appointments, isLoading: appointmentsLoading } = useGetMyAppointments();
-  const { data: donationHistory, isLoading: historyLoading } = useGetDonationHistory(
-    identity?.getPrincipal() || null
+  const { data: userProfile, isLoading: profileLoading } =
+    useGetCallerUserProfile();
+  const { data: donor, isLoading: donorLoading } = useGetDonor(
+    identity?.getPrincipal() || null,
   );
+  const { data: appointments, isLoading: appointmentsLoading } =
+    useGetMyAppointments();
+  const { data: donationHistory, isLoading: historyLoading } =
+    useGetDonationHistory(identity?.getPrincipal() || null);
   const { data: notifications } = useGetMyNotifications();
 
-  const upcomingAppointments = appointments?.filter(a => a.status === 'Scheduled') || [];
+  const upcomingAppointments =
+    appointments?.filter((a) => a.status === "Scheduled") || [];
   const recentDonations = donationHistory?.slice(0, 3) || [];
-  const unreadNotifications = notifications?.filter(n => !n.isRead).slice(0, 3) || [];
+  const unreadNotifications =
+    notifications?.filter((n) => !n.isRead).slice(0, 3) || [];
 
   return (
     <DonorLayout currentPage="home">
@@ -49,7 +64,7 @@ export default function DonorDashboard() {
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="text-2xl font-display font-bold text-foreground mb-1">
-                  Welcome back, {profileLoading ? '...' : userProfile?.name}!
+                  Welcome back, {profileLoading ? "..." : userProfile?.name}!
                 </h2>
                 <p className="text-muted-foreground">
                   Thank you for being a life-saver
@@ -68,12 +83,14 @@ export default function DonorDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Blood Type</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Blood Type
+                  </p>
                   {profileLoading ? (
                     <Skeleton className="h-8 w-16" />
                   ) : (
                     <p className="text-2xl font-display font-bold text-foreground">
-                      {userProfile?.bloodGroup || 'N/A'}
+                      {userProfile?.bloodGroup || "N/A"}
                     </p>
                   )}
                 </div>
@@ -88,7 +105,9 @@ export default function DonorDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Total Donations</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Total Donations
+                  </p>
                   {historyLoading ? (
                     <Skeleton className="h-8 w-12" />
                   ) : (
@@ -108,7 +127,9 @@ export default function DonorDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Eligibility</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Eligibility
+                  </p>
                   {donorLoading ? (
                     <Skeleton className="h-8 w-20" />
                   ) : (
@@ -116,12 +137,16 @@ export default function DonorDashboard() {
                       {donor?.isEligible ? (
                         <>
                           <CheckCircle2 className="h-5 w-5 text-success" />
-                          <span className="text-lg font-semibold text-success">Eligible</span>
+                          <span className="text-lg font-semibold text-success">
+                            Eligible
+                          </span>
                         </>
                       ) : (
                         <>
                           <XCircle className="h-5 w-5 text-destructive" />
-                          <span className="text-lg font-semibold text-destructive">Ineligible</span>
+                          <span className="text-lg font-semibold text-destructive">
+                            Ineligible
+                          </span>
                         </>
                       )}
                     </div>
@@ -135,7 +160,9 @@ export default function DonorDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Appointments</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Appointments
+                  </p>
                   {appointmentsLoading ? (
                     <Skeleton className="h-8 w-12" />
                   ) : (
@@ -163,9 +190,15 @@ export default function DonorDashboard() {
                     <Calendar className="h-5 w-5" />
                     Upcoming Appointments
                   </CardTitle>
-                  <CardDescription>Your scheduled donation appointments</CardDescription>
+                  <CardDescription>
+                    Your scheduled donation appointments
+                  </CardDescription>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => toast.info('Coming soon!')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toast.info("Coming soon!")}
+                >
                   View All
                 </Button>
               </div>
@@ -173,13 +206,17 @@ export default function DonorDashboard() {
             <CardContent>
               {appointmentsLoading ? (
                 <div className="space-y-3">
-                  {[1, 2].map(i => <Skeleton key={i} className="h-20 w-full" />)}
+                  {[1, 2].map((i) => (
+                    <Skeleton key={i} className="h-20 w-full" />
+                  ))}
                 </div>
               ) : upcomingAppointments.length === 0 ? (
                 <div className="text-center py-8">
                   <Clock className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground mb-3">No upcoming appointments</p>
-                  <Button size="sm" onClick={() => toast.info('Coming soon!')}>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    No upcoming appointments
+                  </p>
+                  <Button size="sm" onClick={() => toast.info("Coming soon!")}>
                     Book Appointment
                   </Button>
                 </div>
@@ -217,7 +254,11 @@ export default function DonorDashboard() {
                   </CardTitle>
                   <CardDescription>Your donation history</CardDescription>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => toast.info('Coming soon!')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toast.info("Coming soon!")}
+                >
                   View All
                 </Button>
               </div>
@@ -225,12 +266,16 @@ export default function DonorDashboard() {
             <CardContent>
               {historyLoading ? (
                 <div className="space-y-3">
-                  {[1, 2].map(i => <Skeleton key={i} className="h-20 w-full" />)}
+                  {[1, 2].map((i) => (
+                    <Skeleton key={i} className="h-20 w-full" />
+                  ))}
                 </div>
               ) : recentDonations.length === 0 ? (
                 <div className="text-center py-8">
                   <Heart className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">No donations yet</p>
+                  <p className="text-sm text-muted-foreground">
+                    No donations yet
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -241,7 +286,10 @@ export default function DonorDashboard() {
                     >
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge className={getBloodTypeColor(donation.bloodType)} variant="outline">
+                          <Badge
+                            className={getBloodTypeColor(donation.bloodType)}
+                            variant="outline"
+                          >
                             {donation.bloodType}
                           </Badge>
                           <span className="text-sm font-medium">
@@ -271,9 +319,15 @@ export default function DonorDashboard() {
                     <Bell className="h-5 w-5" />
                     Recent Notifications
                   </CardTitle>
-                  <CardDescription>{unreadNotifications.length} unread</CardDescription>
+                  <CardDescription>
+                    {unreadNotifications.length} unread
+                  </CardDescription>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => toast.info('Coming soon!')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toast.info("Coming soon!")}
+                >
                   View All
                 </Button>
               </div>

@@ -1,23 +1,35 @@
-import { useState } from 'react';
-import { Link, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { AlertCircle, ArrowLeft, Heart, Loader2 } from 'lucide-react';
-import { useSubmitEmergencyRequest } from '@/hooks/useQueries';
-import { BLOOD_TYPES, URGENCY_LEVELS } from '@/lib/bloodbank-utils';
-import { toast } from 'sonner';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useSubmitEmergencyRequest } from "@/hooks/useQueries";
+import { BLOOD_TYPES, URGENCY_LEVELS } from "@/lib/bloodbank-utils";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { AlertCircle, ArrowLeft, Heart, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function EmergencyRequestPage() {
   const navigate = useNavigate();
-  const [patientName, setPatientName] = useState('');
-  const [bloodType, setBloodType] = useState('');
-  const [location, setLocation] = useState('');
-  const [urgencyLevel, setUrgencyLevel] = useState('');
-  const [contactInfo, setContactInfo] = useState('');
+  const [patientName, setPatientName] = useState("");
+  const [bloodType, setBloodType] = useState("");
+  const [location, setLocation] = useState("");
+  const [urgencyLevel, setUrgencyLevel] = useState("");
+  const [contactInfo, setContactInfo] = useState("");
 
   const submitRequest = useSubmitEmergencyRequest();
 
@@ -25,7 +37,7 @@ export default function EmergencyRequestPage() {
     e.preventDefault();
 
     if (!patientName || !bloodType || !location || !urgencyLevel) {
-      toast.error('Please fill in all required fields');
+      toast.error("Please fill in all required fields");
       return;
     }
 
@@ -37,20 +49,20 @@ export default function EmergencyRequestPage() {
         urgencyLevel,
       });
 
-      toast.success('Emergency request submitted successfully');
-      
+      toast.success("Emergency request submitted successfully");
+
       // Reset form
-      setPatientName('');
-      setBloodType('');
-      setLocation('');
-      setUrgencyLevel('');
-      setContactInfo('');
+      setPatientName("");
+      setBloodType("");
+      setLocation("");
+      setUrgencyLevel("");
+      setContactInfo("");
 
       // Navigate back to home after a short delay
-      setTimeout(() => navigate({ to: '/' }), 2000);
+      setTimeout(() => navigate({ to: "/" }), 2000);
     } catch (error) {
-      console.error('Error submitting emergency request:', error);
-      toast.error('Failed to submit request. Please try again.');
+      console.error("Error submitting emergency request:", error);
+      toast.error("Failed to submit request. Please try again.");
     }
   };
 
@@ -61,9 +73,11 @@ export default function EmergencyRequestPage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <Heart className="h-8 w-8 text-primary fill-primary" />
-            <h1 className="text-2xl font-display font-bold text-foreground">BloodBank</h1>
+            <h1 className="text-2xl font-display font-bold text-foreground">
+              BloodBank
+            </h1>
           </Link>
-          
+
           <Link to="/">
             <Button variant="outline" size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -80,18 +94,24 @@ export default function EmergencyRequestPage() {
           <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-8 flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-destructive mt-0.5 animate-pulse-glow shrink-0" />
             <div>
-              <h2 className="font-display font-semibold text-destructive mb-1">Emergency Blood Request</h2>
+              <h2 className="font-display font-semibold text-destructive mb-1">
+                Emergency Blood Request
+              </h2>
               <p className="text-sm text-destructive/80">
-                This form is for urgent blood requirements. Our system will notify available donors and administrators immediately.
+                This form is for urgent blood requirements. Our system will
+                notify available donors and administrators immediately.
               </p>
             </div>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl font-display">Submit Emergency Request</CardTitle>
+              <CardTitle className="text-2xl font-display">
+                Submit Emergency Request
+              </CardTitle>
               <CardDescription>
-                Fill in the details below. No login required. All fields marked with * are required.
+                Fill in the details below. No login required. All fields marked
+                with * are required.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -112,9 +132,14 @@ export default function EmergencyRequestPage() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="bloodType">
-                      Blood Type Required <span className="text-destructive">*</span>
+                      Blood Type Required{" "}
+                      <span className="text-destructive">*</span>
                     </Label>
-                    <Select value={bloodType} onValueChange={setBloodType} required>
+                    <Select
+                      value={bloodType}
+                      onValueChange={setBloodType}
+                      required
+                    >
                       <SelectTrigger id="bloodType">
                         <SelectValue placeholder="Select blood type" />
                       </SelectTrigger>
@@ -132,7 +157,11 @@ export default function EmergencyRequestPage() {
                     <Label htmlFor="urgencyLevel">
                       Urgency Level <span className="text-destructive">*</span>
                     </Label>
-                    <Select value={urgencyLevel} onValueChange={setUrgencyLevel} required>
+                    <Select
+                      value={urgencyLevel}
+                      onValueChange={setUrgencyLevel}
+                      required
+                    >
                       <SelectTrigger id="urgencyLevel">
                         <SelectValue placeholder="Select urgency" />
                       </SelectTrigger>
@@ -149,7 +178,8 @@ export default function EmergencyRequestPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="location">
-                    Hospital/Location <span className="text-destructive">*</span>
+                    Hospital/Location{" "}
+                    <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="location"
@@ -161,7 +191,9 @@ export default function EmergencyRequestPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contactInfo">Contact Information (Optional)</Label>
+                  <Label htmlFor="contactInfo">
+                    Contact Information (Optional)
+                  </Label>
                   <Textarea
                     id="contactInfo"
                     value={contactInfo}
@@ -170,16 +202,28 @@ export default function EmergencyRequestPage() {
                     rows={3}
                   />
                   <p className="text-xs text-muted-foreground">
-                    This information will help us reach you faster, but it's optional.
+                    This information will help us reach you faster, but it's
+                    optional.
                   </p>
                 </div>
 
                 <div className="bg-muted/50 border border-border rounded-lg p-4">
-                  <h3 className="font-semibold text-sm mb-2">What happens next?</h3>
+                  <h3 className="font-semibold text-sm mb-2">
+                    What happens next?
+                  </h3>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Your request will be visible to all administrators immediately</li>
-                    <li>• Available donors matching your requirements will be notified</li>
-                    <li>• You can track the status of your request after logging in</li>
+                    <li>
+                      • Your request will be visible to all administrators
+                      immediately
+                    </li>
+                    <li>
+                      • Available donors matching your requirements will be
+                      notified
+                    </li>
+                    <li>
+                      • You can track the status of your request after logging
+                      in
+                    </li>
                   </ul>
                 </div>
 
@@ -219,8 +263,11 @@ export default function EmergencyRequestPage() {
                   Need help or have questions?
                 </p>
                 <p className="text-sm">
-                  For immediate assistance, call our 24/7 helpline or{' '}
-                  <Link to="/" className="text-primary hover:underline font-medium">
+                  For immediate assistance, call our 24/7 helpline or{" "}
+                  <Link
+                    to="/"
+                    className="text-primary hover:underline font-medium"
+                  >
                     return to homepage
                   </Link>
                 </p>
